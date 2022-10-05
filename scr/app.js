@@ -9,6 +9,8 @@
 // 3 - Body parser: É uma biblioteca que permite manipular o corpo do protocolo http 
 // >> npm install body-parser --save
 
+const { Router } = require('express')
+
 // Import da biblioteca do express para criar a API 
 const express = require('express');
 
@@ -21,6 +23,7 @@ const { response } = require('express');
 
 // Cria um obejto chamado app que sera especialista nas funcoes do express 
 const app = express();
+const routes = Router();
 
 // Request  - Para receber dados
 // Response - Para devolver dados
@@ -47,7 +50,7 @@ const {getAlunos, getAlunoStatus, getAlunoPorAnoConclusao, getAnosConclusao, get
 
 
 // EndPoint: Cursos
-app.get('/cursos/:sigla', cors(), async function(request, response, next){
+routes.get('/cursos/:sigla', cors(), async function(request, response, next){
     let sigla = request.params.sigla;
     let curso = getCurso(sigla) 
 
@@ -65,7 +68,7 @@ app.get('/cursos/:sigla', cors(), async function(request, response, next){
 });
 
 // Endpoint para listar todos os alunos
-app.get('/alunos', cors(), async (request, response, next) => {
+routes.get('/alunos', cors(), async (request, response, next) => {
     let listaEstudantes = getAlunos();
 
     if (listaEstudantes) {
@@ -76,7 +79,7 @@ app.get('/alunos', cors(), async (request, response, next) => {
     }
 });
 
-app.get('/aluno/:matricula', function( request, response, next) {
+routes.get('/aluno/:matricula', function( request, response, next) {
     let matricula = request.params.matricula
     let aluno = getAlunospelaMatricula(matricula)
 
@@ -121,7 +124,7 @@ app.get('/aluno/:matricula', function( request, response, next) {
 
 
 // End: Informações do aluno pela matricula 
-app.get('/.aluno/:matricula/:curso', cors(), async function(request, response, next){
+routes.get('/.aluno/:matricula/:curso', cors(), async function(request, response, next){
 
     let matricula = request.params.matricula
     let curso = request.params.curso
@@ -138,7 +141,7 @@ app.get('/.aluno/:matricula/:curso', cors(), async function(request, response, n
 })
 
 // Alunos do Curso
-app.get('/alunos/:curso', cors(), async function(request, response, next){
+routes.get('/alunos/:curso', cors(), async function(request, response, next){
 
     let curso = request.params.curso
     let alunos = getAlunoCurso(curso)
@@ -155,7 +158,7 @@ app.get('/alunos/:curso', cors(), async function(request, response, next){
 })
 
 // Endpoint para listar alunos a partir de um status
-app.get('/alunos/status/:status', cors(), async (request, response, next) => {
+routes.get('/alunos/status/:status', cors(), async (request, response, next) => {
     let status = request.params.status;
     let listaEstudantes = getAlunoStatus(status);
 
@@ -192,6 +195,8 @@ app.get('/alunos/status/:status', cors(), async (request, response, next) => {
 //         response.status(500);
 //     }
 // });
+
+app.use('/.netlify/functions/api',routes);
 
 // Listen
 app.listen(8080, function(){
